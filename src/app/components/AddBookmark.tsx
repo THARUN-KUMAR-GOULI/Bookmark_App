@@ -27,6 +27,7 @@ export default function AddBookmark() {
       const { error } = await supabase
         .from('bookmarks')
         .insert([{ user_id: user.id, url: validUrl, title: title || validUrl }])
+        .select()
 
       if (error) throw error
       setUrl('')

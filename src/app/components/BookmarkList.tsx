@@ -1,8 +1,9 @@
 'use client'
 
 import { createClient } from '../lib/supabase/client'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Bookmark } from '../types/index'
+import { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 
 export default function BookmarkList() {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
@@ -10,64 +11,70 @@ export default function BookmarkList() {
   const [deletingId, setDeletingId] = useState<number | null>(null)
   const supabase = createClient()
 
-  useEffect(() => {
-    let subscription: any
-
-    const fetchBookmarksAndSubscribe = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        setLoading(false)
-        return
-      }
-
-      const { data } = await supabase
-        .from('bookmarks')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      setBookmarks(data || [])
+  const fetchBookmarks = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
       setLoading(false)
-
-      subscription = supabase
-        .channel('bookmarks_changes')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'bookmarks',
-          },
-          (payload) => {
-            if (payload.eventType === 'INSERT') {
-              setBookmarks(prev => [payload.new as Bookmark, ...prev])
-            }
-
-            if (payload.eventType === 'UPDATE') {
-              setBookmarks(prev =>
-                prev.map(b =>
-                  b.id === payload.new.id ? (payload.new as Bookmark) : b
-                )
-              )
-            }
-
-            if (payload.eventType === 'DELETE') {
-              setBookmarks(prev =>
-                prev.filter(b => b.id !== payload.old.id)
-              )
-            }
-          }
-        )
-        .subscribe()
+      return
     }
 
-    fetchBookmarksAndSubscribe()
+    const { data } = await supabase
+      .from('bookmarks')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    setBookmarks(data || [])
+    setLoading(false)
+  }, [supabase])
+
+  useEffect(() => {
+    fetchBookmarks()
+
+    // Set up realtime subscription
+    const subscription = supabase
+      .channel('bookmarks-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'bookmarks'
+        },
+        (payload: RealtimePostgresChangesPayload<Bookmark>) => {
+          console.log('Realtime event:', payload.eventType, payload)
+
+          if (payload.eventType === 'INSERT') {
+            const newBookmark = payload.new as Bookmark
+            setBookmarks(prev => {
+              // Check if already exists (avoid duplicates)
+              if (prev.some(b => b.id === newBookmark.id)) {
+                return prev
+              }
+              return [newBookmark, ...prev]
+            })
+          }
+
+          if (payload.eventType === 'DELETE') {
+            const deletedBookmark = payload.old as Bookmark
+            setBookmarks(prev => prev.filter(b => b.id !== deletedBookmark.id))
+          }
+
+          if (payload.eventType === 'UPDATE') {
+            const updatedBookmark = payload.new as Bookmark
+            setBookmarks(prev =>
+              prev.map(b => b.id === updatedBookmark.id ? updatedBookmark : b)
+            )
+          }
+        }
+      )
+      .subscribe((status) => {
+        console.log('Subscription status:', status)
+      })
 
     return () => {
-      if (subscription) {
-        supabase.removeChannel(subscription)
-      }
+      subscription.unsubscribe()
     }
-  }, [supabase])
+  }, [supabase, fetchBookmarks])
 
   const handleDelete = async (id: number) => {
     setDeletingId(id)
