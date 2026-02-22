@@ -1,5 +1,5 @@
-🔗 Live Demo: Live Demo: [Live URL](https://bookmark-app-nine-silk.vercel.app/)
-📦 GitHub Repository: [GitHub Link](https://github.com/THARUN-KUMAR-GOULI/Bookmark_App)
+* 🔗 Live Demo: Live Demo: [Live URL](https://bookmark-app-nine-silk.vercel.app/)
+* 📦 GitHub Repository: [GitHub Link](https://github.com/THARUN-KUMAR-GOULI/Bookmark_App)
 
 # Smart Bookmark App
 
