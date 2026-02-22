@@ -12,9 +12,14 @@ export default function BookmarkList() {
   const supabase = createClient()
 
   useEffect(() => {
-    const fetchBookmarks = async () => {
+    let subscription: any
+
+    const fetchBookmarksAndSubscribe = async () => {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { setLoading(false); return }
+      if (!user) {
+        setLoading(false)
+        return
+      }
 
       const { data } = await supabase
         .from('bookmarks')
@@ -23,29 +28,36 @@ export default function BookmarkList() {
 
       setBookmarks(data || [])
       setLoading(false)
-    }
 
-    fetchBookmarks()
-
-    const subscription = supabase
-      .channel('bookmarks_changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'bookmarks' },
-        async (_payload: RealtimePostgresChangesPayload<Bookmark>) => {
-          const { data: { user } } = await supabase.auth.getUser()
-          if (user) {
+      subscription = supabase
+        .channel('bookmarks_changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'bookmarks',
+            filter: `user_id=eq.${user.id}`,
+          },
+          async (_payload: RealtimePostgresChangesPayload<Bookmark>) => {
             const { data } = await supabase
               .from('bookmarks')
               .select('*')
               .order('created_at', { ascending: false })
+
             setBookmarks(data || [])
           }
-        }
-      )
-      .subscribe()
+        )
+        .subscribe()
+    }
 
-    return () => { subscription.unsubscribe() }
+    fetchBookmarksAndSubscribe()
+
+    return () => {
+      if (subscription) {
+        supabase.removeChannel(subscription)
+      }
+    }
   }, [supabase])
 
   const handleDelete = async (id: number) => {
@@ -65,7 +77,9 @@ export default function BookmarkList() {
     try {
       const domain = new URL(url).hostname
       return `https://www.google.com/s2/favicons?domain=${domain}&sz=32`
-    } catch { return null }
+    } catch {
+      return null
+    }
   }
 
   if (loading) {
