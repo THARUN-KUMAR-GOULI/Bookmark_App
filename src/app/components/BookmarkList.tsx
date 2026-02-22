@@ -3,7 +3,6 @@
 import { createClient } from '../lib/supabase/client'
 import { useEffect, useState } from 'react'
 import { Bookmark } from '../types/index'
-import { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 
 export default function BookmarkList() {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
@@ -38,13 +37,24 @@ export default function BookmarkList() {
             schema: 'public',
             table: 'bookmarks',
           },
-          async () => {
-            const { data } = await supabase
-              .from('bookmarks')
-              .select('*')
-              .order('created_at', { ascending: false })
+          (payload) => {
+            if (payload.eventType === 'INSERT') {
+              setBookmarks(prev => [payload.new as Bookmark, ...prev])
+            }
 
-            setBookmarks(data || [])
+            if (payload.eventType === 'UPDATE') {
+              setBookmarks(prev =>
+                prev.map(b =>
+                  b.id === payload.new.id ? (payload.new as Bookmark) : b
+                )
+              )
+            }
+
+            if (payload.eventType === 'DELETE') {
+              setBookmarks(prev =>
+                prev.filter(b => b.id !== payload.old.id)
+              )
+            }
           }
         )
         .subscribe()
@@ -143,8 +153,8 @@ export default function BookmarkList() {
           >
             {deletingId === bookmark.id ? (
               <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
             ) : (
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
