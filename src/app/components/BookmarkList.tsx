@@ -37,9 +37,8 @@ export default function BookmarkList() {
             event: '*',
             schema: 'public',
             table: 'bookmarks',
-            filter: `user_id=eq.${user.id}`,
           },
-          async (_payload: RealtimePostgresChangesPayload<Bookmark>) => {
+          async () => {
             const { data } = await supabase
               .from('bookmarks')
               .select('*')
