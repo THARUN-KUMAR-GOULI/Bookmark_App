@@ -1,13 +1,13 @@
 'use client'
 
-import { createClient } from '../lib/supabase/client'
+import { supabaseClient } from '../lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 export default function AuthButton() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+  const supabase = supabaseClient()
   const router = useRouter()
 
   useEffect(() => {

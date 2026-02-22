@@ -1,6 +1,6 @@
 'use client'
 
-import { createClient } from '../lib/supabase/client'
+import { supabaseClient } from '../lib/supabase/client'
 import { useEffect, useState } from 'react'
 import { Bookmark } from '../types'
 import { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
@@ -9,7 +9,7 @@ export default function BookmarkList() {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
   const [loading, setLoading] = useState(true)
   const [deletingId, setDeletingId] = useState<number | null>(null)
-  const supabase = createClient()
+  const supabase = supabaseClient()
 
   useEffect(() => {
     let channel: any
@@ -21,7 +21,6 @@ export default function BookmarkList() {
         return
       }
 
-      // 1️⃣ Initial fetch
       const { data } = await supabase
         .from('bookmarks')
         .select('*')
@@ -31,7 +30,6 @@ export default function BookmarkList() {
       setBookmarks(data || [])
       setLoading(false)
 
-      // 2️⃣ Realtime subscription (only this user's rows)
       channel = supabase
         .channel('bookmarks-realtime')
         .on(

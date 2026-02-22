@@ -1,6 +1,6 @@
 'use client'
 
-import { createClient } from '../lib/supabase/client'
+import { supabaseClient } from '../lib/supabase/client'
 import { useState } from 'react'
 
 export default function AddBookmark() {
@@ -8,7 +8,7 @@ export default function AddBookmark() {
   const [title, setTitle] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const supabase = createClient()
+  const supabase = supabaseClient()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
