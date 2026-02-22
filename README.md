@@ -1,38 +1,90 @@
+🔗 Live Demo: Live Demo: [Live URL](https://bookmark-app-nine-silk.vercel.app/)
+📦 GitHub Repository: [GitHub Link](https://github.com/THARUN-KUMAR-GOULI/Bookmark_App)
+
+# Smart Bookmark App
+
+
+
 # Bookmark_App
-=======
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+A modern web application that allows users to securely save, manage, and organize their favorite website links. Users can **authenticate** using Google, add bookmarks with titles, view them in real time, and delete them when no longer needed.
 
-First, run the development server:
+The application focuses on a **clean UI**, **secure authentication**, and **real-time updates** for a smooth user experience.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+* Google Authentication (OAuth)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+* Add and store bookmarks securely
 
-## Learn More
+* Real-time bookmark updates
 
-To learn more about Next.js, take a look at the following resources:
+* Delete bookmarks instantly
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+* Responsive and modern UI
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+* Hosted and deployed online
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Challenges Faced & Solutions
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 1.) Google OAuth Redirect Configuration
+
+#### Challenge
+Initially failed to authenticate users due to incorrect redirect URLs between Supabase and Google Cloud Console.
+
+#### Solution
+Later configured matching redirect URLs in Supabase Authentication settings and Google OAuth credentials for both local and production environments. This resolved authentication failures and enabled successful login.
+
+
+
+### 2.) Tailwind CSS was not properly initialized at the beginning of the project
+
+#### Challenge
+Tailwind CSS was not properly initialized at the beginning of the project. Because of this, several utility classes were not applying correctly.
+
+#### Solution
+Then verified the Tailwind installation and ensured that global styles were imported correctly. While resolving configuration issues, temporarily used custom utility values like h-[20px], w-[32px], to maintain layout consistency. Once Tailwind was stabilized, we standardized most styling using Tailwind utilities.
+
+
+#### 3.) GitHub Push & Version Control Conflicts
+
+#### Challenge
+While pushing the project to GitHub, merge conflicts occurred due to differences between the local and remote repository histories.
+
+#### Solution
+Resolved conflicts manually, rebased the branch, and ensured the correct branch structure before pushing. This helped maintain a clean commit history and successful deployment.
+
+
+
+#### 4.) Deployment Configuration on Vercel
+
+#### Challenge
+Deployment initially failed because environment variables were not configured properly and project naming rules were not followed.
+
+#### Solution
+Then checked and added required environment variables (Supabase URL and API key) in Vercel settings and renamed the project using lowercase characters only, which allowed successful deployment.
+
+---
+
+## Learn Outcomes
+
+* Learned OAuth authentication integration
+
+* Understood real-time database updates
+
+* Gained experience with deployment workflows
+
+* Improved debugging and configuration skills
+
+---
+
+## Author
+
+Developed by
+# Tharun Kumar
+
+
